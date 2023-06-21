@@ -1,0 +1,30 @@
+name: Build Python Environment & Run Snyk_GitHub_Issues.py
+
+on:
+  pull_request:
+    branches: master
+  #schedule:
+   # - cron: 0 0 * * *
+    #set up for cron job now, but can use a different action (i.e. commit, PR, etc.)
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pytest
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Run Snyk_GitHub_Issues.py
+      run: python3 Snyk_GitHub_Issues.py
