@@ -3,6 +3,7 @@
 import json
 import logging
 import os
+import re
 
 try:
     import queue
@@ -78,6 +79,11 @@ def dashboard(layout=None):
     locale = request.args.get('locale')
     widgets = _enabled_jobs()
     if layout is not None:
+        # Allowlist: only permit alphanumeric characters, hyphens, and
+        # underscores to prevent path-traversal attacks via the layout
+        # URL parameter (e.g. "../../secret").
+        if not re.match(r'^[A-Za-z0-9_-]+$', layout):
+            abort(404)
         try:
             return render_template('index.html',
                                    layout='layouts/{0}.html'.format(layout),
